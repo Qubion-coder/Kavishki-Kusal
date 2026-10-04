@@ -5,6 +5,57 @@ import { FloatingPetals } from './FloatingPetals';
 
 export const Hero: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // URL Parsing for Personalized Invitation
+  const path = window.location.pathname.replace(/\/$/, "");
+  const guestName = path !== '/' && path !== '' && path !== '/admin' ? decodeURIComponent(path.slice(1)) : '';
+  const searchParams = new URLSearchParams(window.location.search);
+  const prefixId = searchParams.get('p') || '';
+  
+  let displayName = guestName;
+  let isEnglish = true;
+  let sinhalaPrefix = '';
+
+  if (prefixId) {
+    if (prefixId === 'mr') { displayName = `Mr. ${guestName}`; isEnglish = true; }
+    else if (prefixId === 'mrs') { displayName = `Mrs. ${guestName}`; isEnglish = true; }
+    else if (prefixId === 'miss') { displayName = `Miss ${guestName}`; isEnglish = true; }
+    else if (prefixId === 'mr_mrs') { displayName = `Mr. & Mrs. ${guestName}`; isEnglish = true; }
+    else if (prefixId === 'family') { displayName = `${guestName} and Family`; isEnglish = true; }
+    else if (prefixId === 'dear') { displayName = guestName; isEnglish = true; }
+    else if (prefixId === 'obata') { sinhalaPrefix = 'ඔබට'; isEnglish = false; }
+    else if (prefixId === 'oba_depalata') { sinhalaPrefix = 'ඔබ දෙපළට'; isEnglish = false; }
+    else if (prefixId === 'oba_samata') { sinhalaPrefix = 'ඔබ සැමට'; isEnglish = false; }
+  }
+
+  const getHeroEnglish = () => {
+    if (!guestName) return "Together with our families, we joyfully invite you to join us";
+    if (isEnglish) {
+      return (
+        <>
+          We cordially invite<br />
+          <span className="block my-3 text-3xl sm:text-4xl font-display text-brand-sakura-deep font-bold drop-shadow-md">{displayName}</span>
+          to celebrate our special day with us.
+        </>
+      );
+    }
+    return "Together with our families, we joyfully invite you to join us";
+  };
+
+  const getHeroSinhala = () => {
+    if (!guestName) return "අපගේ පවුල් වල සාමාජිකයින් සමඟ එක්ව, අපගේ විවාහ මංගල උත්සවය සඳහා අප ඔබට මහත් ප්‍රීතියෙන් යුතුව ආරාධනා කර සිටිනවා.";
+    if (!isEnglish && sinhalaPrefix) {
+      return (
+        <>
+          අපගේ පවුල් වල සාමාජිකයින් සමඟ එක්ව, අපගේ විවාහ මංගල උත්සවය සඳහා අපි<br />
+          <span className="block my-3 text-3xl sm:text-4xl font-sinhala text-brand-sakura-deep font-bold drop-shadow-md">{guestName} {sinhalaPrefix}</span>
+          මහත් ප්‍රීතියෙන් යුතුව ආරාධනා කර සිටිමු.
+        </>
+      );
+    }
+    return "අපගේ පවුල් වල සාමාජිකයින් සමඟ එක්ව, අපගේ විවාහ මංගල උත්සවය සඳහා අප ඔබට මහත් ප්‍රීතියෙන් යුතුව ආරාධනා කර සිටිනවා.";
+  };
+
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 1000], [0, 400]);
   const scale = useTransform(scrollY, [0, 800], [1, 1.1]);
@@ -79,10 +130,10 @@ export const Hero: React.FC = () => {
             <div className="hidden sm:block h-[1px] w-20 bg-gradient-to-r from-transparent to-brand-sakura-deep/40" />
             <div className="px-4 text-center max-w-xl space-y-4">
               <p className="text-[1.1rem] sm:text-2xl font-serif italic text-stone-700 tracking-wide leading-relaxed drop-shadow-[0_1px_2px_rgba(255,255,255,0.5)]">
-                Together with our families, we joyfully invite you to join us
+                {getHeroEnglish()}
               </p>
               <p className="text-lg sm:text-xl font-sinhala text-stone-600 leading-relaxed">
-                අපගේ පවුල් වල සාමාජිකයින් සමඟ එක්ව, අපගේ විවාහ මංගල උත්සවය සඳහා අප ඔබව මහත් ප්‍රීතියෙන් යුතුව ආරාධනා කර සිටිනවා.
+                {getHeroSinhala()}
               </p>
             </div>
             <div className="hidden sm:block h-[1px] w-20 bg-gradient-to-l from-transparent to-brand-sakura-deep/40" />

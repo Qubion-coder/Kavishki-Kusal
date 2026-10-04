@@ -10,9 +10,17 @@ import { CoupleDetails } from './components/CoupleDetails';
 // Removed Timeline import
 import { Location } from './components/Location';
 // Removed RSVPForm import
+import { RSVP } from './components/RSVP';
 import { Footer } from './components/Footer';
+import { Admin } from './pages/Admin';
 
 export default function App() {
+  // Simple routing for Admin page
+  const path = window.location.pathname.replace(/\/$/, "");
+  if (path === '/admin') {
+    return <Admin />;
+  }
+
   const [showMain, setShowMain] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -109,7 +117,20 @@ export default function App() {
               <Location />
             </section>
 
-
+            <section id="rsvp" className="pt-0 pb-16 sm:pb-32 relative overflow-hidden">
+              <div className="absolute inset-0 -z-10">
+                <div
+                  className="hidden sm:block absolute inset-0 bg-cover bg-center opacity-100"
+                  style={{ backgroundImage: "url('/ChatGPT Image May 14, 2026, 03_54_56 PM.png')" }}
+                />
+                <img 
+                  src="/ChatGPT Image May 14, 2026, 03_54_56 PM.png" 
+                  alt="RSVP Mobile Background" 
+                  className="block sm:hidden w-full h-full object-cover absolute inset-0 opacity-100" 
+                />
+              </div>
+              <RSVP />
+            </section>
 
             <Footer />
           </motion.main>
