@@ -9,19 +9,33 @@ export const RSVP: React.FC = () => {
     guestCount: '1'
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to a backend or email service
-    // For now, we'll just show the success message
-    setIsSubmitted(true);
+    setIsSubmitting(true);
     
-    // Simulate a WhatsApp message or simply a form submit
-    const message = `RSVP Details:\nනම (Name): ${formData.name}\nපැමිණීම (Attendance): ${formData.attending === 'pamine' ? 'පැමිණේ (Attending)' : 'නොපැමිණේ (Not Attending)'}\nසහභාගී වන සංඛ්‍යාව (Guests): ${formData.attending === 'pamine' ? formData.guestCount : '0'}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx464zG2c8xVIrp1B6FU5oQMDXBOTKVHMMAD4KdScwp_IGeVMl42Xj4ihuOIDvEI68F/exec';
     
-    // Open whatsapp in a new tab
-    window.open(whatsappUrl, '_blank');
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append('Name', formData.name);
+      formDataObj.append('Attending', formData.attending === 'pamine' ? 'Yes' : 'No');
+      formDataObj.append('GuestCount', formData.attending === 'pamine' ? formData.guestCount : '0');
+      
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: formDataObj,
+        mode: 'no-cors' // Required for Google Apps Script
+      });
+      
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting form', error);
+      alert('There was an error submitting your RSVP. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -163,10 +177,11 @@ export const RSVP: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full mt-8 bg-stone-800 text-brand-champagne px-8 py-5 rounded-2xl font-sans tracking-[0.2em] text-sm uppercase hover:bg-stone-900 hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-3 group"
+                disabled={isSubmitting}
+                className="w-full mt-8 bg-stone-800 text-brand-champagne px-8 py-5 rounded-2xl font-sans tracking-[0.2em] text-sm uppercase hover:bg-stone-900 hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 <Mail className="w-5 h-5 text-brand-sakura group-hover:scale-110 transition-transform" />
-                Submit RSVP via WhatsApp
+                {isSubmitting ? 'Submitting...' : 'Confirm RSVP / තහවුරු කරන්න'}
               </motion.button>
             </form>
           ) : (
